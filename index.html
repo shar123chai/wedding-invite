@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aarav & Kavya | Wedding Invite</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Poppins:wght@300;400&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <video autoplay muted loop playsinline class="hero-video">
+    <source src="assets/video/hero.mp4" type="video/mp4" />
+  </video>
+  <div class="overlay"></div>
+
+  <div class="hero-content">
+    <p class="intro">We're getting married</p>
+    <h1 class="names">Aarav & Kavya</h1>
+  </div>
+</section>
+
+<!-- DATE -->
+<section class="section reveal">
+  <h2>Sunday</h2>
+  <p class="date">14 December 2026</p>
+</section>
+
+<!-- EVENTS -->
+<section class="section">
+  <h2 class="section-title">Wedding Events</h2>
+  <div class="cards">
+    <div class="card">Engagement</div>
+    <div class="card">Haldi</div>
+    <div class="card">Sangeet</div>
+    <div class="card">Wedding</div>
+  </div>
+</section>
+
+<!-- VENUE -->
+<section class="section reveal">
+  <h2>Nagpur, Maharashtra</h2>
+  <p>A celebration at an intimate family venue</p>
+  <a class="map-btn" href="#">Open in Maps</a>
+</section>
+
+<!-- CLOSING -->
+<section class="section closing">
+  <p>We look forward to celebrating with you</p>
+  <h2>Save the Date</h2>
+</section>
+
+<!-- MUSIC -->
+<audio id="bg-music" loop>
+  <source src="assets/music/bg-music.mp3" type="audio/mpeg" />
+</audio>
+<button id="music-toggle">🎵</button>
+
+<!-- GSAP -->
+<script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+<script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+<script src="script.js"></script>
+</body>
+</html>
