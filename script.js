@@ -25,6 +25,18 @@ gsap.ticker.lagSmoothing(0);
 gsap.from('.intro', { opacity: 0, y: 20, duration: 1 });
 gsap.from('.names', { opacity: 0, y: 30, duration: 1.2, delay: 0.5 });
 
+// Fade out video and overlay as user scrolls
+gsap.to('.hero-video, .overlay', {
+  scrollTrigger: {
+    trigger: '.hero',
+    start: 'top top',
+    end: 'bottom top',
+    scrub: true
+  },
+  opacity: 0,
+  ease: 'none'
+});
+
 // Cinematic scroll reveals with scrub
 document.querySelectorAll('.reveal').forEach(section => {
   gsap.from(section, {
