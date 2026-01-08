@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initializePhotoGallery();
   initializeMusicToggle();
   initializeEventCards();
+  initializeFontSwitcher();
 });
 
 // PRELOADER FUNCTIONALITY
@@ -32,7 +33,7 @@ function initializePreloader() {
 
 // COUNTDOWN TIMER FUNCTIONALITY
 function initializeCountdown() {
-  const weddingDate = new Date('June 15, 2024 11:00:00').getTime();
+  const weddingDate = new Date('February 5, 2026 11:00:00').getTime();
   
   function updateCountdown() {
     const now = new Date().getTime();
@@ -393,6 +394,102 @@ function createHeartsEffect() {
       }
     }, 3000);
   }
+}
+
+// FONT SWITCHER FUNCTIONALITY
+function initializeFontSwitcher() {
+  const selectedFont = localStorage.getItem('selectedFont');
+  
+  if (selectedFont) {
+    applySelectedFont(selectedFont);
+  }
+  
+  // Add font selection button to the main page
+  addFontSelectionButton();
+}
+
+function applySelectedFont(fontName) {
+  const fontMapping = {
+    'Playfair Display': "'Playfair Display', serif",
+    'Dancing Script': "'Dancing Script', cursive",
+    'Great Vibes': "'Great Vibes', cursive",
+    'Cinzel': "'Cinzel', serif",
+    'Cormorant Garamond': "'Cormorant Garamond', serif",
+    'Libre Baskerville': "'Libre Baskerville', serif",
+    'Crimson Text': "'Crimson Text', serif",
+    'Philosopher': "'Philosopher', sans-serif"
+  };
+  
+  const fontFamily = fontMapping[fontName] || "'Playfair Display', serif";
+  
+  // Apply font to main text elements
+  const elementsToStyle = [
+    '.hero h1.names',
+    '.section h2',
+    '.section-title',
+    '.countdown-section h2',
+    '.countdown-section .date',
+    '.card h3',
+    '.closing h2',
+    '.closing p'
+  ];
+  
+  // Create or update dynamic stylesheet
+  let styleElement = document.getElementById('dynamic-font-styles');
+  if (!styleElement) {
+    styleElement = document.createElement('style');
+    styleElement.id = 'dynamic-font-styles';
+    document.head.appendChild(styleElement);
+  }
+  
+  const css = elementsToStyle.map(selector => 
+    `${selector} { font-family: ${fontFamily} !important; }`
+  ).join('\n');
+  
+  styleElement.textContent = css;
+  
+  console.log(`Applied font: ${fontName}`);
+}
+
+function addFontSelectionButton() {
+  // Create a font selection button
+  const fontButton = document.createElement('button');
+  fontButton.id = 'font-selector-btn';
+  fontButton.innerHTML = '🎨';
+  fontButton.title = 'Choose Font Style';
+  fontButton.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  `;
+  
+  fontButton.addEventListener('mouseenter', function() {
+    this.style.background = 'rgba(255, 255, 255, 0.3)';
+    this.style.transform = 'scale(1.1)';
+  });
+  
+  fontButton.addEventListener('mouseleave', function() {
+    this.style.background = 'rgba(255, 255, 255, 0.2)';
+    this.style.transform = 'scale(1)';
+  });
+  
+  fontButton.addEventListener('click', function() {
+    window.open('font-options.html', '_blank');
+  });
+  
+  document.body.appendChild(fontButton);
 }
 
 console.log('Enhanced Wedding Invitation loaded successfully! 💕');
