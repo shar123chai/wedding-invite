@@ -33,46 +33,76 @@ function initializePreloader() {
 
 // COUNTDOWN TIMER FUNCTIONALITY
 function initializeCountdown() {
-  const weddingDate = new Date('February 5, 2026 11:00:00').getTime();
+  // More robust date parsing for cross-browser compatibility
+  const weddingDate = new Date(2026, 1, 5, 11, 0, 0).getTime(); // Month is 0-indexed, so 1 = February
   
   function updateCountdown() {
-    const now = new Date().getTime();
-    const distance = weddingDate - now;
-    
-    if (distance > 0) {
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    try {
+      const now = new Date().getTime();
+      const distance = weddingDate - now;
       
-      // Update countdown display with animation
-      updateCountdownNumber('days', days.toString().padStart(3, '0'));
-      updateCountdownNumber('hours', hours.toString().padStart(2, '0'));
-      updateCountdownNumber('minutes', minutes.toString().padStart(2, '0'));
-      updateCountdownNumber('seconds', seconds.toString().padStart(2, '0'));
-    } else {
-      // Wedding day arrived!
-      document.getElementById('days').textContent = '000';
-      document.getElementById('hours').textContent = '00';
-      document.getElementById('minutes').textContent = '00';
-      document.getElementById('seconds').textContent = '00';
+      if (distance > 0) {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        // Update countdown display with animation
+        updateCountdownNumber('days', Math.max(0, days).toString().padStart(3, '0'));
+        updateCountdownNumber('hours', Math.max(0, hours).toString().padStart(2, '0'));
+        updateCountdownNumber('minutes', Math.max(0, minutes).toString().padStart(2, '0'));
+        updateCountdownNumber('seconds', Math.max(0, seconds).toString().padStart(2, '0'));
+      } else {
+        // Wedding day arrived!
+        updateCountdownNumber('days', '000');
+        updateCountdownNumber('hours', '00');
+        updateCountdownNumber('minutes', '00');
+        updateCountdownNumber('seconds', '00');
+      }
+    } catch (error) {
+      console.error('Countdown error:', error);
+      // Fallback display
+      updateCountdownNumber('days', '000');
+      updateCountdownNumber('hours', '00');
+      updateCountdownNumber('minutes', '00');
+      updateCountdownNumber('seconds', '00');
     }
   }
   
   function updateCountdownNumber(id, newValue) {
     const element = document.getElementById(id);
-    if (element && element.textContent !== newValue) {
-      element.style.transform = 'scale(1.2)';
-      element.textContent = newValue;
-      setTimeout(() => {
-        element.style.transform = 'scale(1)';
-      }, 200);
+    if (element) {
+      if (element.textContent !== newValue) {
+        element.style.transition = 'transform 0.2s ease';
+        element.style.transform = 'scale(1.2)';
+        element.textContent = newValue;
+        setTimeout(() => {
+          element.style.transform = 'scale(1)';
+        }, 200);
+      }
     }
   }
   
   // Update countdown immediately and then every second
   updateCountdown();
-  setInterval(updateCountdown, 1000);
+  
+  // Use both setInterval and requestAnimationFrame for better mobile performance
+  let countdownInterval = setInterval(updateCountdown, 1000);
+  
+  // Handle visibility change to prevent issues when tab is not active on mobile
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'visible') {
+      // Clear old interval and restart when tab becomes visible
+      clearInterval(countdownInterval);
+      updateCountdown(); // Update immediately
+      countdownInterval = setInterval(updateCountdown, 1000);
+    }
+  });
+  
+  // Additional fallback for mobile devices - update on focus
+  window.addEventListener('focus', function() {
+    updateCountdown();
+  });
 }
 
 // TYPEWRITER TEXT ANIMATION
@@ -180,7 +210,7 @@ function initializeEventCards() {
   });
 }
 
-// MUSIC TOGGLE FUNCTIONALITY
+// MUSIC TOGGLE FUNCTIONALITY WITH AUTOPLAY
 function initializeMusicToggle() {
   const musicToggle = document.getElementById('music-toggle');
   const bgMusic = document.getElementById('bg-music');
@@ -188,44 +218,109 @@ function initializeMusicToggle() {
   
   if (!musicToggle || !bgMusic) return;
   
+  // Set initial volume and prepare audio
+  bgMusic.volume = 0.7;
+  
+  // Function to play music
+  function playMusic() {
+    const playPromise = bgMusic.play();
+    
+    if (playPromise !== undefined) {
+      playPromise.then(() => {
+        isPlaying = true;
+        musicToggle.textContent = '🎶';
+        musicToggle.style.opacity = '1';
+        musicToggle.style.animation = 'pulse 2s infinite';
+        console.log('Music started playing');
+      }).catch(error => {
+        console.log('Audio playback failed:', error);
+        isPlaying = false;
+        musicToggle.textContent = '🎵';
+        musicToggle.style.opacity = '0.8';
+        musicToggle.style.animation = 'none';
+        
+        // Show subtle indication that user can click to play
+        musicToggle.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.5)';
+      });
+    }
+  }
+  
+  // Function to pause music
+  function pauseMusic() {
+    bgMusic.pause();
+    isPlaying = false;
+    musicToggle.textContent = '🎵';
+    musicToggle.style.opacity = '0.7';
+    musicToggle.style.animation = 'none';
+    musicToggle.style.boxShadow = 'none';
+  }
+  
+  // Music toggle click handler
   musicToggle.addEventListener('click', function() {
     if (isPlaying) {
-      bgMusic.pause();
-      musicToggle.textContent = '🎵';
-      musicToggle.style.opacity = '0.7';
+      pauseMusic();
     } else {
-      const playPromise = bgMusic.play();
-      
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          isPlaying = true;
-          musicToggle.textContent = '🎶';
-          musicToggle.style.opacity = '1';
-        }).catch(error => {
-          console.log('Audio playback failed:', error);
-          // Handle the case where audio file is missing
-          musicToggle.textContent = '🔇';
-          musicToggle.style.opacity = '0.5';
-        });
-      }
+      playMusic();
     }
   });
+  
+  // Try to autoplay after a short delay (after preloader)
+  setTimeout(() => {
+    // Attempt autoplay after page has loaded
+    playMusic();
+  }, 2500);
+  
+  // Alternative: Try autoplay on first user interaction
+  function enableAutoplayOnInteraction() {
+    if (!isPlaying) {
+      playMusic();
+    }
+    // Remove listeners after first attempt
+    document.removeEventListener('click', enableAutoplayOnInteraction);
+    document.removeEventListener('scroll', enableAutoplayOnInteraction);
+    document.removeEventListener('keydown', enableAutoplayOnInteraction);
+  }
+  
+  // Add event listeners for user interaction
+  document.addEventListener('click', enableAutoplayOnInteraction, { once: true });
+  document.addEventListener('scroll', enableAutoplayOnInteraction, { once: true });
+  document.addEventListener('keydown', enableAutoplayOnInteraction, { once: true });
   
   // Handle audio events
   bgMusic.addEventListener('loadeddata', function() {
     console.log('Audio loaded successfully');
   });
   
+  bgMusic.addEventListener('canplaythrough', function() {
+    console.log('Audio ready to play');
+  });
+  
   bgMusic.addEventListener('error', function(e) {
     console.log('Audio loading error:', e);
     musicToggle.textContent = '🔇';
     musicToggle.style.opacity = '0.5';
+    musicToggle.style.animation = 'none';
   });
   
   bgMusic.addEventListener('ended', function() {
     isPlaying = false;
     musicToggle.textContent = '🎵';
     musicToggle.style.opacity = '0.7';
+    musicToggle.style.animation = 'none';
+  });
+  
+  bgMusic.addEventListener('pause', function() {
+    isPlaying = false;
+    musicToggle.textContent = '🎵';
+    musicToggle.style.opacity = '0.7';
+    musicToggle.style.animation = 'none';
+  });
+  
+  bgMusic.addEventListener('play', function() {
+    isPlaying = true;
+    musicToggle.textContent = '🎶';
+    musicToggle.style.opacity = '1';
+    musicToggle.style.animation = 'pulse 2s infinite';
   });
 }
 
@@ -403,9 +498,6 @@ function initializeFontSwitcher() {
   if (selectedFont) {
     applySelectedFont(selectedFont);
   }
-  
-  // Add font selection button to the main page
-  addFontSelectionButton();
 }
 
 function applySelectedFont(fontName) {
@@ -451,45 +543,5 @@ function applySelectedFont(fontName) {
   console.log(`Applied font: ${fontName}`);
 }
 
-function addFontSelectionButton() {
-  // Create a font selection button
-  const fontButton = document.createElement('button');
-  fontButton.id = 'font-selector-btn';
-  fontButton.innerHTML = '🎨';
-  fontButton.title = 'Choose Font Style';
-  fontButton.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    width: 50px;
-    height: 50px;
-    border: none;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 1000;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  `;
-  
-  fontButton.addEventListener('mouseenter', function() {
-    this.style.background = 'rgba(255, 255, 255, 0.3)';
-    this.style.transform = 'scale(1.1)';
-  });
-  
-  fontButton.addEventListener('mouseleave', function() {
-    this.style.background = 'rgba(255, 255, 255, 0.2)';
-    this.style.transform = 'scale(1)';
-  });
-  
-  fontButton.addEventListener('click', function() {
-    window.open('font-options.html', '_blank');
-  });
-  
-  document.body.appendChild(fontButton);
-}
 
 console.log('Enhanced Wedding Invitation loaded successfully! 💕');
