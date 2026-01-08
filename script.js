@@ -228,19 +228,21 @@ function initializeMusicToggle() {
     if (playPromise !== undefined) {
       playPromise.then(() => {
         isPlaying = true;
-        musicToggle.textContent = '🎶';
-        musicToggle.style.opacity = '1';
-        musicToggle.style.animation = 'pulse 2s infinite';
+        musicToggle.textContent = '🔊';
+        musicToggle.style.opacity = '0.8';
+        musicToggle.style.animation = 'none';
+        musicToggle.title = 'Click to mute music';
         console.log('Music started playing');
       }).catch(error => {
         console.log('Audio playback failed:', error);
         isPlaying = false;
-        musicToggle.textContent = '🎵';
-        musicToggle.style.opacity = '0.8';
+        musicToggle.textContent = '🔇';
+        musicToggle.style.opacity = '0.6';
         musicToggle.style.animation = 'none';
+        musicToggle.title = 'Click to play music';
         
         // Show subtle indication that user can click to play
-        musicToggle.style.boxShadow = '0 0 15px rgba(255, 255, 255, 0.5)';
+        musicToggle.style.boxShadow = '0 0 10px rgba(255, 255, 255, 0.3)';
       });
     }
   }
@@ -249,10 +251,11 @@ function initializeMusicToggle() {
   function pauseMusic() {
     bgMusic.pause();
     isPlaying = false;
-    musicToggle.textContent = '🎵';
-    musicToggle.style.opacity = '0.7';
+    musicToggle.textContent = '🔇';
+    musicToggle.style.opacity = '0.6';
     musicToggle.style.animation = 'none';
     musicToggle.style.boxShadow = 'none';
+    musicToggle.title = 'Click to play music';
   }
   
   // Music toggle click handler
@@ -300,27 +303,31 @@ function initializeMusicToggle() {
     musicToggle.textContent = '🔇';
     musicToggle.style.opacity = '0.5';
     musicToggle.style.animation = 'none';
+    musicToggle.title = 'Audio unavailable';
   });
   
   bgMusic.addEventListener('ended', function() {
     isPlaying = false;
-    musicToggle.textContent = '🎵';
-    musicToggle.style.opacity = '0.7';
+    musicToggle.textContent = '🔇';
+    musicToggle.style.opacity = '0.6';
     musicToggle.style.animation = 'none';
+    musicToggle.title = 'Click to play music';
   });
   
   bgMusic.addEventListener('pause', function() {
     isPlaying = false;
-    musicToggle.textContent = '🎵';
-    musicToggle.style.opacity = '0.7';
+    musicToggle.textContent = '🔇';
+    musicToggle.style.opacity = '0.6';
     musicToggle.style.animation = 'none';
+    musicToggle.title = 'Click to play music';
   });
   
   bgMusic.addEventListener('play', function() {
     isPlaying = true;
-    musicToggle.textContent = '🎶';
-    musicToggle.style.opacity = '1';
-    musicToggle.style.animation = 'pulse 2s infinite';
+    musicToggle.textContent = '🔊';
+    musicToggle.style.opacity = '0.8';
+    musicToggle.style.animation = 'none';
+    musicToggle.title = 'Click to mute music';
   });
 }
 
