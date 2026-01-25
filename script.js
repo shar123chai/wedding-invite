@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initializeScrollAnimations();
   initializeSmoothScroll();
   initializeCountdown();
-  initializeTypewriter();
+  // initializeTypewriter(); // Now called after preloader hides
   initializePhotoGallery();
   initializeMusicToggle();
   initializeEventCards();
@@ -16,19 +16,110 @@ document.addEventListener('DOMContentLoaded', function() {
 // PRELOADER FUNCTIONALITY
 function initializePreloader() {
   const preloader = document.getElementById('preloader');
+  let assetsLoaded = {
+    video: false,
+    music: false,
+    images: false
+  };
   
-  // Hide preloader after 2 seconds
-  setTimeout(() => {
-    preloader.style.opacity = '0';
-    preloader.style.visibility = 'hidden';
-    
-    // Remove preloader from DOM after transition
-    setTimeout(() => {
-      if (preloader.parentNode) {
-        preloader.parentNode.removeChild(preloader);
+  // Track video loading
+  const heroVideo = document.querySelector('.hero-video');
+  if (heroVideo) {
+    heroVideo.addEventListener('loadeddata', () => {
+      assetsLoaded.video = true;
+      checkAllAssetsLoaded();
+    });
+    heroVideo.addEventListener('error', () => {
+      assetsLoaded.video = true; // Continue even if video fails
+      checkAllAssetsLoaded();
+    });
+  } else {
+    assetsLoaded.video = true;
+  }
+  
+  // Track music loading
+  const bgMusic = document.getElementById('bg-music');
+  if (bgMusic) {
+    bgMusic.addEventListener('canplaythrough', () => {
+      assetsLoaded.music = true;
+      checkAllAssetsLoaded();
+    }, { once: true });
+    bgMusic.addEventListener('error', () => {
+      assetsLoaded.music = true; // Continue even if music fails
+      checkAllAssetsLoaded();
+    });
+  } else {
+    assetsLoaded.music = true;
+  }
+  
+  // Track gallery images loading
+  const galleryImages = document.querySelectorAll('.gallery-item img');
+  let imagesLoadedCount = 0;
+  const totalImages = galleryImages.length;
+  
+  if (totalImages === 0) {
+    assetsLoaded.images = true;
+  } else {
+    galleryImages.forEach(img => {
+      if (img.complete) {
+        imagesLoadedCount++;
+      } else {
+        img.addEventListener('load', () => {
+          imagesLoadedCount++;
+          if (imagesLoadedCount === totalImages) {
+            assetsLoaded.images = true;
+            checkAllAssetsLoaded();
+          }
+        });
+        img.addEventListener('error', () => {
+          imagesLoadedCount++;
+          if (imagesLoadedCount === totalImages) {
+            assetsLoaded.images = true;
+            checkAllAssetsLoaded();
+          }
+        });
       }
-    }, 500);
-  }, 2000);
+    });
+    
+    // Check if all images were already loaded
+    if (imagesLoadedCount === totalImages) {
+      assetsLoaded.images = true;
+    }
+  }
+  
+  // Fallback timeout - hide preloader after 8 seconds max
+  setTimeout(() => {
+    hidePreloader();
+  }, 8000);
+  
+  function checkAllAssetsLoaded() {
+    if (assetsLoaded.video && assetsLoaded.music && assetsLoaded.images) {
+      // Add small delay for smooth transition
+      setTimeout(() => {
+        hidePreloader();
+      }, 500);
+    }
+  }
+  
+  function hidePreloader() {
+    if (preloader && preloader.style.opacity !== '0') {
+      preloader.style.opacity = '0';
+      preloader.style.visibility = 'hidden';
+      
+      // Start typewriter animation after preloader hides
+      setTimeout(() => {
+        initializeTypewriter();
+        showScrollIndicator();
+      }, 300);
+      
+      // Remove preloader from DOM after transition
+      setTimeout(() => {
+        if (preloader.parentNode) {
+          preloader.parentNode.removeChild(preloader);
+        }
+      }, 800);
+    }
+  }
 }
 
 // COUNTDOWN TIMER FUNCTIONALITY
@@ -132,6 +223,37 @@ function initializeTypewriter() {
         }
       }, 100);
     }, parseInt(delay));
+  });
+}
+
+// SCROLL INDICATOR
+function showScrollIndicator() {
+  // Create scroll indicator
+  const scrollIndicator = document.createElement('div');
+  scrollIndicator.id = 'scroll-indicator';
+  scrollIndicator.innerHTML = '<div class="scroll-arrow">↓</div><p class="scroll-text">Scroll to explore</p>';
+  document.body.appendChild(scrollIndicator);
+  
+  // Hide on scroll
+  let hasScrolled = false;
+  window.addEventListener('scroll', () => {
+    if (!hasScrolled && window.scrollY > 50) {
+      hasScrolled = true;
+      scrollIndicator.style.opacity = '0';
+      setTimeout(() => {
+        if (scrollIndicator.parentNode) {
+          scrollIndicator.parentNode.removeChild(scrollIndicator);
+        }
+      }, 500);
+    }
+  });
+  
+  // Click to scroll
+  scrollIndicator.addEventListener('click', () => {
+    window.scrollTo({
+      top: window.innerHeight * 0.8,
+      behavior: 'smooth'
+    });
   });
 }
 
