@@ -350,6 +350,7 @@ function initializeMusicToggle() {
       playPromise.then(() => {
         isPlaying = true;
         musicToggle.textContent = '🔊';
+        musicToggle.classList.add('playing');
         musicToggle.style.opacity = '0.8';
         musicToggle.style.animation = 'none';
         musicToggle.title = 'Click to mute music';
@@ -358,6 +359,7 @@ function initializeMusicToggle() {
         console.log('Audio playback failed:', error);
         isPlaying = false;
         musicToggle.textContent = '🔇';
+        musicToggle.classList.remove('playing');
         musicToggle.style.opacity = '0.6';
         musicToggle.style.animation = 'none';
         musicToggle.title = 'Click to play music';
@@ -373,6 +375,7 @@ function initializeMusicToggle() {
     bgMusic.pause();
     isPlaying = false;
     musicToggle.textContent = '🔇';
+    musicToggle.classList.remove('playing');
     musicToggle.style.opacity = '0.6';
     musicToggle.style.animation = 'none';
     musicToggle.style.boxShadow = 'none';
