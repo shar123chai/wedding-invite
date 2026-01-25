@@ -259,28 +259,32 @@ function showScrollIndicator() {
 
 // PHOTO GALLERY FUNCTIONALITY
 function initializePhotoGallery() {
-  const galleryItems = document.querySelectorAll('.gallery-item');
-  const prevButton = document.querySelector('.gallery-prev');
-  const nextButton = document.querySelector('.gallery-next');
+  // Initialize main gallery
+  initGallery('.gallery-container', '.gallery-prev', '.gallery-next');
+  
+  // Initialize family gallery
+  initGallery('.family-gallery-container', '.family-gallery-prev', '.family-gallery-next');
+}
+
+function initGallery(containerSelector, prevSelector, nextSelector) {
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
+  
+  const galleryItems = container.querySelectorAll('.gallery-item');
+  const prevButton = document.querySelector(prevSelector);
+  const nextButton = document.querySelector(nextSelector);
   let currentIndex = 0;
   
   if (!galleryItems.length || !prevButton || !nextButton) return;
   
   function showImage(index) {
-    // Hide all images
-    galleryItems.forEach(item => item.classList.remove('active'));
-    
-    // Show selected image
-    galleryItems[index].classList.add('active');
-    
-    // Add entrance animation
-    galleryItems[index].style.opacity = '0';
-    galleryItems[index].style.transform = 'scale(0.9)';
-    
-    setTimeout(() => {
-      galleryItems[index].style.opacity = '1';
-      galleryItems[index].style.transform = 'scale(1)';
-    }, 50);
+    galleryItems.forEach((item, i) => {
+      if (i === index) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
   }
   
   function nextImage() {
@@ -299,11 +303,6 @@ function initializePhotoGallery() {
   
   // Auto-advance gallery every 5 seconds
   setInterval(nextImage, 5000);
-  
-  // Add smooth transition styles
-  galleryItems.forEach(item => {
-    item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-  });
 }
 
 // ENHANCED EVENT CARDS
